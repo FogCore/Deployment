@@ -1,0 +1,117 @@
+version: '3'
+
+services:
+# WebApp
+  WebApp:
+    image: fogcore/web_app:latest
+    container_name: WebApp
+    volumes:
+      - ./web_app_dev_config.py:/WebApp/config.py:ro
+    ports:
+      - 80:80
+     
+# APIGateway
+  APIGateway:
+    image: fogcore/api_gateway:latest
+    container_name: APIGateway
+    volumes:
+      - ./api_gateway_dev_config.py:/APIGateway/config.py:ro
+    ports:
+      - 81:80
+
+# UsersService
+  UsersService:
+    image: fogcore/users_service:latest
+    container_name: UsersService
+
+  UsersServiceDB:
+    image: mongo:latest
+    container_name: UsersServiceDB
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: testing1
+    volumes:
+      - ./users_service_mongo_init.sh:/docker-entrypoint-initdb.d/init-mongo.sh:ro
+      - UsersServiceDB:/data/db
+
+# ImagesService
+  ImagesService:
+    image: fogcore/images_service:latest
+    container_name: ImagesService
+    volumes:
+      - ./images_service_dev_config.py:/ImagesService/config.py:ro
+    ports:
+      - 82:80
+
+  ImagesServiceDB:
+    image: mongo:latest
+    container_name: ImagesServiceDB
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: testing1
+    volumes:
+      - ./images_service_mongo_init.sh:/docker-entrypoint-initdb.d/init-mongo.sh:ro
+      - ImagesServiceDB:/data/db
+
+  ImagesServiceRegistry:
+    image: registry:latest
+    container_name: ImagesServiceRegistry
+    volumes:
+      - ./docker_registry_config.yml:/etc/docker/registry/config.yml
+      - ./certs:/mnt/local/certs
+      - ImagesServiceRegistry:/var/lib/registry
+    ports:
+      - 4000:5000
+      
+# CloudletsService
+  CloudletsService:
+    image: fogcore/cloudlets_service:latest
+    container_name: CloudletsService
+    ports:
+      - 50050:50050
+
+  CloudletsServiceDB:
+    image: mongo:latest
+    container_name: CloudletsServiceDB
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: testing1
+    volumes:
+      - ./cloudlets_service_mongo_init.sh:/docker-entrypoint-initdb.d/init-mongo.sh:ro
+      - CloudletsServiceDB:/data/db
+      
+# SchedulingService
+  SchedulingService:
+    image: fogcore/scheduling_service:latest
+    container_name: SchedulingService
+    environment:
+      DOCKER_SWARM_MANAGER: <ip_address>:80
+      DOCKER_REGISTRY_URL: <ip_address>:4000
+
+  SchedulingServiceDB:
+    image: mongo:latest
+    container_name: SchedulingServiceDB
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: testing1
+    volumes:
+      - ./scheduling_service_mongo_init.sh:/docker-entrypoint-initdb.d/init-mongo.sh:ro
+      - SchedulingServiceDB:/data/db
+
+
+volumes:
+  UsersServiceDB:
+    external:
+      name: UsersServiceDB
+  ImagesServiceDB:
+    external:
+      name: ImagesServiceDB
+  ImagesServiceRegistry:
+    external:
+      name: ImagesServiceRegistry
+  CloudletsServiceDB:
+    external:
+      name: CloudletsServiceDB
+  SchedulingServiceDB:
+    external:
+      name: SchedulingServiceDB
