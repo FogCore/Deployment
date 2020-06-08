@@ -4,7 +4,7 @@ Instructions for the FogCore system deployment.
 
 
 
-To test FogCore system deployment you need to have 2 hosts running Ubuntu 20.04 with Docker Engine 19.03 and know their IP addresses.
+To test FogCore system deployment you need to have 2 hosts running Ubuntu 20.04 with SSH server and know their IP addresses.
 
 #### First host
 
@@ -20,23 +20,29 @@ To test FogCore system deployment you need to have 2 hosts running Ubuntu 20.04 
    git clone https://github.com/FogCore/Deployment.git && cd Deployment
    ```
 
-3. Create the necessary container volumes
+3. Install Docker Engine
+
+   ```bash
+   ./docker_install.sh
+   ```
+
+4. Create the necessary container volumes
 
    ```bash
    docker volume create --name=CloudletsServiceDB && docker volume create --name=ImagesServiceDB && docker volume create --name=ImagesServiceRegistry && docker volume create --name=UsersServiceDB && docker volume create --name=SchedulingServiceDB
    ```
 
-4. Prepare the **docker-compose.yml** file
+5. Prepare the **docker-compose.yml** file
 
    1. In the **services** -> **SchedulingService** -> **environment** -> **DOCKER_SWARM_MANAGER** field set the IP address of the **second** host
    2. In the **services** -> **SchedulingService** -> **environment** -> **DOCKER_REGISTRY_URL** field set the IP address of **this** host
 
-5. Prepare the **docker_registry_config.yml** file
+6. Prepare the **docker_registry_config.yml** file
 
    1. In the **notifications** -> **endpoints** -> **url** field set the IP address of **this** host
    2. In the **auth** -> **token** -> **realm** field set the IP address of **this** host
 
-6. Start FogCore
+7. Start FogCore
 
    ```bash
    docker-compose up
