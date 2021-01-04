@@ -82,3 +82,5 @@ To test FogCore system deployment you need to have 2 hosts running Ubuntu 20.04 
 
 To add fog nodes, see the instructions in the [CloudletAgent](https://github.com/FogCore/CloudletAgent) repository.
 
+
+**The reported project was supported by RFBR, research project No. 18-07-01224**
